@@ -1,12 +1,22 @@
 const chalk = require('chalk');
+const p = require('ember-cli-preprocess-registry/preprocessors');
 const path = require('path');
 
+import { Registry } from '../interfaces';
+
 export default class ImportedAsset {
-  public readonly destDir: String;
-  public readonly outputFile: String;
-  public readonly path: String;
-  public readonly prepend: Boolean;
-  public readonly resolveFrom: Boolean;
+  public readonly basename: string;
+  public readonly destDir: string;
+  public readonly directory: string;
+  public readonly extension: string;
+  public readonly isCSS: boolean;
+  public readonly isTest: boolean;
+  public readonly isVendor: boolean;
+  public readonly outputFile: string;
+  public readonly path: string;
+  public readonly prepend: boolean;
+  public readonly resolveFrom: boolean;
+  public readonly subdirectory: string;
   public readonly type: 'vendor' | 'test';
 
   public static build(path, options, env): ImportedAsset | null {
@@ -17,18 +27,26 @@ export default class ImportedAsset {
   constructor(options) {
     this.destDir = options.destDir;
     this.outputFile = options.outputFile;
-    this.path = options.path;
+    this.path = path;
     this.prepend = options.hasOwnProperty('prepend') ? options.prepend : false;
     this.resolveFrom = options.resolveFrom;
     this.type = options.type || 'vendor';
+
+    this.basename = path.basename(this.path);
+    this.directory = path.dirname(this.path);
+    this.extension = path.extname(this.path);
+    this.subdirectory = this.directory.replace(new RegExp(`^vendor/|node_modules/`), '');
+    this.isCSS = this.extension === '.css';
+    this.isTest = this.type === 'test';
+    this.isVendor = this.type === 'vendor';
 
     if (options.using) {
       throw new Error('Glimmer applications do not support app.import with `using`');
     }
   }
 
-  public get directory() {
-    return path.dirname(this.path);
+  public isJS(registry: Registry): boolean {
+    return p.isType(this.path, 'js', { registry });
   }
 }
 
