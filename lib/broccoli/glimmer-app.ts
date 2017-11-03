@@ -29,6 +29,7 @@ import RollupWithDependencies from './rollup-with-dependencies';
 import defaultModuleConfiguration from './default-module-configuration';
 import { Project, Addon, Tree, RollupOptions, Registry, GlimmerAppOptions } from '../interfaces';
 import TestEntrypointBuilder from './test-entrypoint-builder';
+import ImportedAsset from './imported-asset';
 
 export interface AbstractBuild {
   _notifyAddonIncluded(): void;
@@ -145,6 +146,7 @@ export default class GlimmerApp extends AbstractBuild {
   private outputPaths: OutputPaths;
   private rollupOptions: RollupOptions;
   protected options: GlimmerAppOptions;
+  private importedAssets: Array<ImportedAsset>;
 
   protected trees: Trees;
 
@@ -208,12 +210,17 @@ export default class GlimmerApp extends AbstractBuild {
 
     this.trees = this.buildTrees(options);
     this.outputPaths = options.outputPaths as OutputPaths;
+    this.importedAssets = [];
 
     this['_notifyAddonIncluded']();
   }
 
-  public import() {
-    throw new Error('app.import is not yet implemented for GlimmerApp');
+  public import(path, options) {
+    const asset = ImportedAsset.build(path, options, this.env)
+
+    if (asset) {
+      this.importedAssets.push(asset);
+    }
   }
 
   private _configReplacePatterns() {
