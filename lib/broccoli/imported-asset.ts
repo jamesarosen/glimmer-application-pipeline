@@ -8,7 +8,6 @@ export default class ImportedAsset {
   public readonly prepend: Boolean;
   public readonly resolveFrom: Boolean;
   public readonly type: 'vendor' | 'test';
-  public readonly using: Array<any>;
 
   public static build(path, options, env): ImportedAsset | null {
     path = resolveAssetPath(path, env);
@@ -22,7 +21,10 @@ export default class ImportedAsset {
     this.prepend = options.hasOwnProperty('prepend') ? options.prepend : false;
     this.resolveFrom = options.resolveFrom;
     this.type = options.type || 'vendor';
-    this.using = options.using;
+
+    if (options.using) {
+      throw new Error('Glimmer applications do not support app.import with `using`');
+    }
   }
 
   public get directory() {
