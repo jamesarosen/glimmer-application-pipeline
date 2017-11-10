@@ -5,6 +5,7 @@ type ImportStrategy = (array: Array<string>, target: string, prepend: boolean) =
 
 export default class AssetImporter {
   private readonly env: string;
+  private readonly _testCSSFiles: Array<string>;
   private readonly _testJSFiles: Array<string>;
   private readonly _vendorJSFiles: Array<string>;
   private readonly _vendorCSSFiles: Array<string>;
@@ -13,6 +14,7 @@ export default class AssetImporter {
   constructor(env) {
     this.env = env;
     this._otherVendorFiles = [];
+    this._testCSSFiles = [];
     this._testJSFiles = [];
     this._vendorCSSFiles = [];
     this._vendorJSFiles = [];
@@ -37,6 +39,10 @@ export default class AssetImporter {
     return slice.call(this._otherVendorFiles);
   }
 
+  get testCSSFiles() {
+    return slice.call(this._testCSSFiles);
+  }
+
   get testJSFiles() {
     return slice.call(this._testJSFiles);
   }
@@ -56,7 +62,9 @@ export default class AssetImporter {
       return type === 'vendor' ? this._vendorJSFiles : this._testJSFiles;
     }
 
-    if (extension === '.css') { return this._vendorCSSFiles; }
+    if (extension === '.css') {
+      return type === 'vendor' ? this._vendorCSSFiles : this._testCSSFiles;
+    }
 
     return this._otherVendorFiles;
   }

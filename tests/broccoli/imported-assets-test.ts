@@ -46,7 +46,7 @@ describe('asset-importer', function() {
     });
   });
 
-  describe('importing a file into vendor.css', function() {
+  describe('importing CSS files', function() {
     it('appends and prepends, prefering the latest import', function() {
       importer.import({ path: 'a.css' });
       importer.import({ path: 'b.css' });
@@ -60,6 +60,18 @@ describe('asset-importer', function() {
         'b.css',
         'd.css'
       ]);
+    });
+
+    it('allows bucketing files into vendor and test', function() {
+      importer.import({ path: 'a.css' });
+      importer.import({ path: 'b.css', type: 'test' });
+
+      expect(importer.vendorCSSFiles).to.eql([ 'a.css' ]);
+      expect(importer.testCSSFiles).to.eql([ 'b.css' ]);
+
+      expect(function() {
+        importer.import({ path: 'c.css', type: 'custom' });
+      }).to.throw(/Invalid import type: custom/);
     });
   });
 
