@@ -5,6 +5,7 @@ type ImportStrategy = (array: Array<string>, target: string, prepend: boolean) =
 
 export default class AssetImporter {
   private readonly env: string;
+  private readonly _testJSFiles: Array<string>;
   private readonly _vendorJSFiles: Array<string>;
   private readonly _vendorCSSFiles: Array<string>;
   private readonly _otherVendorFiles: Array<string>;
@@ -12,35 +13,51 @@ export default class AssetImporter {
   constructor(env) {
     this.env = env;
     this._otherVendorFiles = [];
+    this._testJSFiles = [];
     this._vendorCSSFiles = [];
     this._vendorJSFiles = [];
   }
 
-  import({ path: pathname, prepend, using }) {
+  import({ path: pathname, prepend, type, using }) {
+    type = type || 'vendor'
+
+    if (type !== 'test' && type !== 'vendor') {
+      throw new Error(`Invalid import type: ${type}`);
+    }
+
     if (using && using.length > 0) {
       throw new Error('Glimmer app.import does not support transformations');
     }
 
-    const array = this.arrayFor(pathname);
+    const array = this.arrayFor(pathname, type);
     importAsset(array, pathname, prepend);
   }
 
   get otherVendorFiles() {
-    return slice.call(this._otherVendorFiles)
+    return slice.call(this._otherVendorFiles);
+  }
+
+  get testJSFiles() {
+    return slice.call(this._testJSFiles);
   }
 
   get vendorCSSFiles() {
-    return slice.call(this._vendorCSSFiles)
+    return slice.call(this._vendorCSSFiles);
   }
 
   get vendorJSFiles() {
-    return slice.call(this._vendorJSFiles)
+    return slice.call(this._vendorJSFiles);
   }
 
-  private arrayFor(pathname) {
+  private arrayFor(pathname, type) {
     const extension = path.extname(pathname);
-    if (extension === '.js') { return this._vendorJSFiles; }
+
+    if (extension === '.js') {
+      return type === 'vendor' ? this._vendorJSFiles : this._testJSFiles;
+    }
+
     if (extension === '.css') { return this._vendorCSSFiles; }
+
     return this._otherVendorFiles;
   }
 }

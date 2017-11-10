@@ -11,7 +11,7 @@ describe('asset-importer', function() {
 
   // TODO: change the accessor APIs to be Broccoli trees
 
-  describe('importing a file into vendor.js', function() {
+  describe('importing JS files', function() {
     it('appends and prepends, prefering the earliest import', function() {
       importer.import({ path: 'a.js' });
       importer.import({ path: 'b.js' });
@@ -31,6 +31,18 @@ describe('asset-importer', function() {
       expect(function() {
         importer.import({ path: 'a.js', using: [ { transformation: 'anyting' } ] });
       }).to.throw(/Glimmer app.import does not support transformations/);
+    });
+
+    it('allows bucketing files into vendor and test', function() {
+      importer.import({ path: 'a.js' });
+      importer.import({ path: 'b.js', type: 'test' });
+
+      expect(importer.vendorJSFiles).to.eql([ 'a.js' ]);
+      expect(importer.testJSFiles).to.eql([ 'b.js' ]);
+
+      expect(function() {
+        importer.import({ path: 'c.js', type: 'something-else' });
+      }).to.throw(/Invalid import type: something-else/);
     });
   });
 
