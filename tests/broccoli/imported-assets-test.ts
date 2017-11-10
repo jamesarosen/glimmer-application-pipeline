@@ -39,6 +39,12 @@ describe('asset-importer', function() {
       importer.import({ path: 'b.js', prepend: true });
       expect(importer.vendorJSFiles).to.eql([ 'b.js', 'c.js', 'a.js' ]);
     });
+
+    it('disallows transformations', function() {
+      expect(function() {
+        importer.import({ path: 'a.js', using: [ { transformation: 'anyting' } ] });
+      }).to.throw(/Glimmer app.import does not support transformations/);
+    });
   });
 
   describe('importing a file into vendor.css', function() {

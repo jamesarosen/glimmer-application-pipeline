@@ -16,7 +16,11 @@ export default class AssetImporter {
     this._vendorJSFiles = [];
   }
 
-  import({ path: pathname, prepend }) {
+  import({ path: pathname, prepend, using }) {
+    if (using && using.length > 0) {
+      throw new Error('Glimmer app.import does not support transformations');
+    }
+
     const array = this.arrayFor(pathname);
     importAsset(array, pathname, prepend);
   }
