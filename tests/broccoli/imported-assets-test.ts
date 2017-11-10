@@ -45,13 +45,13 @@ describe('asset-importer', function() {
     it('adds the file to the end of the list', function() {
       importer.import({ path: 'a.css' });
       importer.import({ path: 'b.css' });
-      expect(importer.vendorJSFiles).to.eql([ 'a.css', 'b.css' ]);
+      expect(importer.vendorCSSFiles).to.eql([ 'a.css', 'b.css' ]);
     });
 
     it('supports prepending', function() {
       importer.import({ path: 'a.css' });
       importer.import({ path: 'b.css', prepend: true });
-      expect(importer.vendorJSFiles).to.eql([ 'b.css', 'a.css' ]);
+      expect(importer.vendorCSSFiles).to.eql([ 'b.css', 'a.css' ]);
     });
 
     it('prevents duplicates, preferring the last import', function() {
@@ -59,7 +59,7 @@ describe('asset-importer', function() {
       importer.import({ path: 'b.css' });
       importer.import({ path: 'c.css' });
       importer.import({ path: 'b.css' });
-      expect(importer.vendorJSFiles).to.eql([ 'a.css', 'c.css', 'b.css' ]);
+      expect(importer.vendorCSSFiles).to.eql([ 'a.css', 'c.css', 'b.css' ]);
     });
 
     it('prevents duplicates when prepending', function() {
@@ -67,7 +67,16 @@ describe('asset-importer', function() {
       importer.import({ path: 'b.css', prepend: true });
       importer.import({ path: 'c.css', prepend: true });
       importer.import({ path: 'b.css', prepend: true });
-      expect(importer.vendorJSFiles).to.eql([ 'c.css', 'b.css', 'a.css' ]);
+      expect(importer.vendorCSSFiles).to.eql([ 'c.css', 'b.css', 'a.css' ]);
+    });
+  });
+
+  describe('importing other files', function() {
+    it('adds the file to the end of the list', function() {
+      importer.import({ path: 'a.woff' });
+      importer.import({ path: 'b.svg' });
+      importer.import({ path: 'c.pdf', prepend: true });
+      expect(importer.otherVendorFiles).to.eql([ 'a.woff', 'b.svg', 'c.pdf' ]);
     });
   });
 });
